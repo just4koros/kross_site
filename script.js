@@ -3,15 +3,17 @@ const enemy = document.getElementById("enemy");
 const heart = document.getElementById("heart");
 const scoreDisplay = document.getElementById("score");
 const soundToggle = document.getElementById("sound-toggle");
+const gameOverScreen = document.getElementById("game-over");
+const finalScore = document.getElementById("final-score");
 
 let score = 0;
-let soundOn = true;
+let soundOn = localStorage.getItem("soundOn") !== "false";
 let caughtSound = new Audio("sounds/caught.mp3");
 let heartSound = new Audio("sounds/heart.mp3");
 let bgMusic = new Audio("sounds/bg-music.mp3");
 bgMusic.loop = true;
 bgMusic.volume = 0.3;
-bgMusic.play();
+if (soundOn) bgMusic.play();
 
 let playerPos = { top: 100, left: 100 };
 let enemyPos = { top: 300, left: 300 };
@@ -38,8 +40,10 @@ function checkCollision() {
   const dy = Math.abs(playerPos.top - enemyPos.top);
   if (dx < 40 && dy < 40) {
     if (soundOn) caughtSound.play();
-    alert("Caught! Final Score: " + score);
-    score = 0;
+    bgMusic.pause();
+    finalScore.textContent = "Final Score: " + score;
+    gameOverScreen.style.display = "block";
+    clearInterval(gameLoop);
   }
 }
 
@@ -63,9 +67,19 @@ function updateScore() {
 
 function toggleSound() {
   soundOn = !soundOn;
+  localStorage.setItem("soundOn", soundOn);
   soundToggle.textContent = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
   if (soundOn) bgMusic.play();
   else bgMusic.pause();
+}
+
+function restartGame() {
+  score = 0;
+  playerPos = { top: 100, left: 100 };
+  enemyPos = { top: 300, left: 300 };
+  gameOverScreen.style.display = "none";
+  bgMusic.play();
+  gameLoop = setInterval(gameTick, 100);
 }
 
 document.addEventListener("keydown", (e) => {
@@ -97,9 +111,11 @@ document.getElementById("game-area").addEventListener("touchend", (e) => {
 
 soundToggle.addEventListener("click", toggleSound);
 
-setInterval(() => {
+let gameLoop = setInterval(gameTick, 100);
+
+function gameTick() {
   moveEnemy();
   checkCollision();
   checkHeart();
   updateScore();
-}, 100);
+}
