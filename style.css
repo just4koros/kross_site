@@ -27,7 +27,7 @@ h1 {
   height: 60vh;
   margin: 0 auto;
   border: 3px dashed #ff4d4d;
-  background: #fff;
+  background: url('background.jpg') center/cover no-repeat;
   overflow: hidden;
   touch-action: none;
 }
@@ -36,4 +36,16 @@ h1 {
   position: absolute;
   font-size: 2.5rem;
   transition: top 0.1s, left 0.1s;
+}
+
+#game-over {
+  display: none;
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+  background: #fff;
+  border: 2px solid #ff4d4d;
+  padding: 20px;
+  z-index: 10;
 }
