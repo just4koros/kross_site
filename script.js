@@ -15,10 +15,11 @@ bgMusic.play();
 
 let playerPos = { top: 100, left: 100 };
 let enemyPos = { top: 300, left: 300 };
+let heartPos = { top: 200, left: 200 };
 
 function movePlayer(dx, dy) {
-  playerPos.top = Math.max(0, Math.min(playerPos.top + dy, 300));
-  playerPos.left = Math.max(0, Math.min(playerPos.left + dx, 600));
+  playerPos.top = Math.max(0, Math.min(playerPos.top + dy, gameArea.clientHeight - 40));
+  playerPos.left = Math.max(0, Math.min(playerPos.left + dx, gameArea.clientWidth - 40));
   player.style.top = playerPos.top + "px";
   player.style.left = playerPos.left + "px";
 }
@@ -42,6 +43,19 @@ function checkCollision() {
   }
 }
 
+function checkHeart() {
+  const dx = Math.abs(playerPos.left - heartPos.left);
+  const dy = Math.abs(playerPos.top - heartPos.top);
+  if (dx < 40 && dy < 40) {
+    score += 10;
+    if (soundOn) heartSound.play();
+    heartPos.top = Math.random() * (gameArea.clientHeight - 40);
+    heartPos.left = Math.random() * (gameArea.clientWidth - 40);
+    heart.style.top = heartPos.top + "px";
+    heart.style.left = heartPos.left + "px";
+  }
+}
+
 function updateScore() {
   score++;
   scoreDisplay.textContent = "Score: " + score;
@@ -61,10 +75,31 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") movePlayer(10, 0);
 });
 
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.getElementById("game-area").addEventListener("touchstart", (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+
+document.getElementById("game-area").addEventListener("touchend", (e) => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0) movePlayer(10, 0);
+    else movePlayer(-10, 0);
+  } else {
+    if (dy > 0) movePlayer(0, 10);
+    else movePlayer(0, -10);
+  }
+});
+
 soundToggle.addEventListener("click", toggleSound);
 
 setInterval(() => {
   moveEnemy();
   checkCollision();
+  checkHeart();
   updateScore();
 }, 100);
